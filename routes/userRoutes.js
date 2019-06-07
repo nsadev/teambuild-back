@@ -2,6 +2,7 @@ const express = require("express");
 
 const { Helper } = require("../utils/index");
 const knex = require("../database/db");
+const { checkToken } = require("../middleware/checkToken");
 
 const router = new express.Router();
 

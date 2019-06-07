@@ -18,6 +18,10 @@ app.use(bodyParser.json());
 
 app.use("/user", userRoutes);
 
+app.get("/test", (req, res) => {
+  res.send("You're using the API correctly. :)");
+});
+
 app.listen(process.env.PORT || L_PORT, () => {
   console.log(`Server is running on port ${L_PORT}`);
 });
