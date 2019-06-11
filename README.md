@@ -10,5 +10,6 @@ Development started: April, 2019.
   
   <dd>Chandler Baskins</dd>
   <dd>Tamas Knisz</dd>
+  <dd>Steven Symons</dd>
   
  </dl>
