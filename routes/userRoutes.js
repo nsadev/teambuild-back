@@ -10,12 +10,6 @@ const router = new express.Router();
 // in the future using JWE or another technique.
 
 // Login API
-
-router.get("/random", (req, res) => {
-  console.log(req.cookies);
-  res.send("test");
-});
-
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
