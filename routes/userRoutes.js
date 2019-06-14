@@ -54,7 +54,11 @@ router.post("/register", (req, res) => {
 
   // Check if email and password are present
   if (!email || !password || !first_name || !last_name) {
-    return res.status(400).send({ message: "Email or password is missing." });
+    return res
+      .status(400)
+      .send({
+        message: "Email, password, first name or last name is missing."
+      });
   }
 
   // Check if email input is valid
