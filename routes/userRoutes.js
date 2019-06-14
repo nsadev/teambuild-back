@@ -10,6 +10,12 @@ const router = new express.Router();
 // in the future using JWE or another technique.
 
 // Login API
+
+router.get("/random", (req, res) => {
+  console.log(req.cookies);
+  res.send("test");
+});
+
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -27,18 +33,22 @@ router.post("/login", (req, res) => {
           // Generate JWT and send it to the user.
           const jwtToken = Helper.generateToken(email);
 
-          return knex.select('*').from("users")
-              .where({'email': email}).then(user => {
-            res.json({
-              user: user[0],
-              message: 'Login successful',
-              token: jwtToken
-              })
-            })
-        } else{
+          return knex
+            .select("*")
+            .from("users")
+            .where({ email: email })
+            .then(user => {
+              res.cookie("teambuild", jwtToken, { httpOnly: true });
+              res.json({
+                user: user[0],
+                message: "Login successful",
+                token: jwtToken
+              });
+            });
+        } else {
           res.status(400).send("Provided incorrect login details");
         }
-      })
+      });
   } catch (e) {
     res.status(400).send(e);
   }
@@ -49,7 +59,7 @@ router.post("/register", (req, res) => {
   const { email, password, first_name, last_name } = req.body;
 
   // Check if email and password are present
-  if ( !email || !password || !first_name || !last_name ) {
+  if (!email || !password || !first_name || !last_name) {
     return res.status(400).send({ message: "Email or password is missing." });
   }
 
@@ -60,18 +70,20 @@ router.post("/register", (req, res) => {
       .send({ message: "Incorrect email format has been given." });
   }
 
-
-    // Hash input password
+  // Hash input password
   const hashedPassword = Helper.hashPassword(password);
 
   // Insert user into "users" table with required empty fields if email not existing
   try {
-    Promise.resolve(knex.select('email').from('users').where({'email': email})
+    Promise.resolve(
+      knex
+        .select("email")
+        .from("users")
+        .where({ email: email })
         .then(data => {
           if (data.length !== 0) {
-            return res.status(400).send({message: "Email already exist"})
-          }else{
-
+            return res.status(400).send({ message: "Email already exist" });
+          } else {
             knex.transaction(trx => {
               return (
                 trx
@@ -84,7 +96,10 @@ router.post("/register", (req, res) => {
                   // Insert user into "user_login" table with email and password input
                   .into("users")
                   .then(() =>
-                    trx("user_login").insert({ email: email, hashpass: hashedPassword })
+                    trx("user_login").insert({
+                      email: email,
+                      hashpass: hashedPassword
+                    })
                   )
               );
             });
@@ -96,7 +111,8 @@ router.post("/register", (req, res) => {
               token: jwtToken
             });
           }
-    }))
+        })
+    );
   } catch (e) {
     res.status(400).send({ errorMessage: "Incorrect details entered." });
   }
