@@ -41,7 +41,7 @@ exports.Helper = {
       { expiresIn: "7d" }
     );
     const tokenArray = token.split(".");
-    const publicToken = tokenArray[0] + tokenArray[1];
+    const publicToken = tokenArray[0] + "." + tokenArray[1];
     const privateToken = tokenArray[2];
     return {
       publicToken,
