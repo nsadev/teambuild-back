@@ -31,8 +31,8 @@ router.post("/login", (req, res) => {
             .where({ email: email })
             .then(user => {
               const { publicToken, privateToken } = Helper.generateToken(email);
-              res.cookie("teambuild-public", publicToken);
-              res.cookie("teambuild-private", privateToken, { httpOnly: true });
+              res.cookie("teambuildPublic", publicToken);
+              res.cookie("teambuildPrivate", privateToken, { httpOnly: true });
               res.json({
                 user: user[0],
                 message: "Login successful"
@@ -101,8 +101,8 @@ router.post("/register", (req, res) => {
 
             // Generate JWT and send it to the user.
             const { publicToken, privateToken } = Helper.generateToken(email);
-            res.cookie("teambuild-public", publicToken);
-            res.cookie("teambuild-private", privateToken, { httpOnly: true });
+            res.cookie("teambuildPublic", publicToken);
+            res.cookie("teambuildPrivate", privateToken, { httpOnly: true });
             res.json({
               message: "Registration successful"
             });
@@ -113,14 +113,5 @@ router.post("/register", (req, res) => {
     res.status(400).send({ errorMessage: "Incorrect details entered." });
   }
 });
-
-// Possible solution for authentication, will finish it tomorrow.
-
-// router.post("/token", checkToken, (req, res) => {
-//   res.json({
-//     message: "valid token",
-//     valid: true
-//   });
-// });
 
 module.exports = router;
