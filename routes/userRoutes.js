@@ -25,14 +25,14 @@ router.post("/login", (req, res) => {
           Helper.comparePassword(rows[0].hashpass, password)
         ) {
           // Generate JWT and send it to the user.
-          const jwtToken = Helper.generateToken(email);
-
           return knex
             .select("*")
             .from("users")
             .where({ email: email })
             .then(user => {
-              res.cookie("teambuild", jwtToken, { httpOnly: true });
+              const { publicToken, privateToken } = Helper.generateToken(email);
+              res.cookie("teambuild-public", publicToken);
+              res.cookie("teambuild-private", privateToken, { httpOnly: true });
               res.json({
                 user: user[0],
                 message: "Login successful"
@@ -100,8 +100,9 @@ router.post("/register", (req, res) => {
             });
 
             // Generate JWT and send it to the user.
-            const jwtToken = Helper.generateToken(email);
-            res.cookie("teambuild", jwtToken, { httpOnly: true });
+            const { publicToken, privateToken } = Helper.generateToken(email);
+            res.cookie("teambuild-public", publicToken);
+            res.cookie("teambuild-private", privateToken, { httpOnly: true });
             res.json({
               message: "Registration successful"
             });
