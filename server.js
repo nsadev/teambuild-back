@@ -2,8 +2,9 @@ const express = require("express");
 const dotenv = require("dotenv").config();
 const logger = require("morgan");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+
 const userRoutes = require("./routes/userRoutes");
-const cors = require('cors');
 
 const app = express();
 const L_PORT = 5000;
@@ -14,7 +15,7 @@ app.use(logger(":user-agent"));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors())
+app.use(cookieParser());
 
 // Routes
 
