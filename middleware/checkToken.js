@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 
 // Middleware function to check whether client has a valid JWT.
 exports.checkToken = (req, res, next) => {
-  let token = req.cookies.teambuild;
-  console.log(token);
+  const publicToken = req.cookies.teambuildPublic;
+  const privateToken = req.cookies.teambuildPrivate;
+  const token = publicToken + "." + privateToken;
 
   try {
     // Check if token is valid or not.
