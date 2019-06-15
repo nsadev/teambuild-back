@@ -114,4 +114,13 @@ router.post("/register", (req, res) => {
   }
 });
 
+// Possible solution for authentication, will finish it tomorrow.
+
+// router.post("/token", checkToken, (req, res) => {
+//   res.json({
+//     message: "valid token",
+//     valid: true
+//   });
+// });
+
 module.exports = router;
