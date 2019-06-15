@@ -35,8 +35,7 @@ router.post("/login", (req, res) => {
               res.cookie("teambuild", jwtToken, { httpOnly: true });
               res.json({
                 user: user[0],
-                message: "Login successful",
-                token: jwtToken
+                message: "Login successful"
               });
             });
         } else {
@@ -102,9 +101,9 @@ router.post("/register", (req, res) => {
 
             // Generate JWT and send it to the user.
             const jwtToken = Helper.generateToken(email);
+            res.cookie("teambuild", jwtToken, { httpOnly: true });
             res.json({
-              message: "Registration successful",
-              token: jwtToken
+              message: "Registration successful"
             });
           }
         })
