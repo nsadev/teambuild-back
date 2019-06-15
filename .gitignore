@@ -2,7 +2,7 @@
 /node_modules
 
 #Files
-
+.env
 
 # IDE
 .idea/
