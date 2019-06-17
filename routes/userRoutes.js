@@ -1,10 +1,21 @@
 const express = require("express")
+const knex = require("../database/db")
 
 const { Helper } = require("../utils/index")
-const knex = require("../database/db")
 const { checkToken } = require("../middleware/checkToken")
 
 const router = new express.Router()
+
+// API from which we load our user profile
+router.get("/", checkToken, (req, res) => {
+    const { id } = req.decoded
+    knex.select("*")
+        .from("users")
+        .where({ user_id: id })
+        .then(user => {
+            res.json(user[0])
+        })
+})
 
 // Our logging in and registering API works with signed JWT's. This could be secured more in
 // in the future using JWE or another technique.
@@ -33,7 +44,7 @@ router.post("/login", (req, res) => {
                             const {
                                 publicToken,
                                 privateToken,
-                            } = Helper.generateToken(email)
+                            } = Helper.generateToken(user[0].user_id)
                             res.cookie("teambuildPublic", publicToken)
                             res.cookie("teambuildPrivate", privateToken, {
                                 httpOnly: true,
@@ -104,16 +115,6 @@ router.post("/register", (req, res) => {
                                         })
                                     )
                             )
-                        })
-
-                        // Generate JWT and send it to the user.
-                        const {
-                            publicToken,
-                            privateToken,
-                        } = Helper.generateToken(email)
-                        res.cookie("teambuildPublic", publicToken)
-                        res.cookie("teambuildPrivate", privateToken, {
-                            httpOnly: true,
                         })
                         res.json({
                             message: "Registration successful",
