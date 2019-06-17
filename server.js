@@ -1,29 +1,30 @@
-const express = require("express");
-const dotenv = require("dotenv").config();
-const logger = require("morgan");
-const bodyParser = require("body-parser");
-const userRoutes = require("./routes/userRoutes");
-const cors = require('cors');
+const express = require("express")
+const dotenv = require("dotenv").config()
+const logger = require("morgan")
+const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
 
-const app = express();
-const L_PORT = 5000;
+const userRoutes = require("./routes/userRoutes")
 
-app.use(logger(":date[iso]"));
-app.use(logger("dev"));
-app.use(logger(":user-agent"));
+const app = express()
+const L_PORT = 5000
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(cors())
+app.use(logger(":date[iso]"))
+app.use(logger("dev"))
+app.use(logger(":user-agent"))
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use(cookieParser())
 
 // Routes
 
-app.use("/user", userRoutes);
+app.use("/user", userRoutes)
 
 app.get("/test", (req, res) => {
-  res.send("You're using the API correctly. :)");
-});
+    res.send("You're using the API correctly. :)")
+})
 
 app.listen(process.env.PORT || L_PORT, () => {
-  console.log(`Server is running on port ${L_PORT}`);
-});
+    console.log(`Server is running on port ${L_PORT}`)
+})
