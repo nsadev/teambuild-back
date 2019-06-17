@@ -40,6 +40,12 @@ exports.Helper = {
       process.env.SECRET,
       { expiresIn: "7d" }
     );
-    return token;
+    const tokenArray = token.split(".");
+    const publicToken = tokenArray[0] + "." + tokenArray[1];
+    const privateToken = tokenArray[2];
+    return {
+      publicToken,
+      privateToken
+    };
   }
 };
