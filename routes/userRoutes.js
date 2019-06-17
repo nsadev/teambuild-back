@@ -44,11 +44,11 @@ router.post("/login", (req, res) => {
                             })
                         })
                 } else {
-                    res.status(400).send("Provided incorrect login details")
+                    res.status(400).send({message: "Provided incorrect login details"})
                 }
             })
     } catch (e) {
-        res.status(400).send(e)
+        res.status(400).send({errorMessage: e})
     }
 })
 
