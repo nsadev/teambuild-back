@@ -32,10 +32,10 @@ exports.Helper = {
      * @param {string} id
      * @returns {string} token
      */
-    generateToken(email) {
+    generateToken(id) {
         const token = jwt.sign(
             {
-                email: email,
+                id: id,
             },
             process.env.SECRET,
             { expiresIn: "7d" }
