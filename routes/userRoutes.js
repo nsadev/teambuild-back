@@ -25,41 +25,55 @@ router.post("/login", (req, res) => {
     const { email, password } = req.body
 
     // Look up user in db by email
-    try {
-        knex("user_login")
-            .where({ email: email })
-            .select()
-            .then(rows => {
-                // Check if emails and passwords match
-                if (
-                    email === rows[0].email &&
-                    Helper.comparePassword(rows[0].hashpass, password)
-                ) {
-                    // Generate JWT and send it to the user.
-                    return knex
-                        .select("*")
-                        .from("users")
-                        .where({ email: email })
-                        .then(user => {
-                            const {
-                                publicToken,
-                                privateToken,
-                            } = Helper.generateToken(user[0].user_id)
-                            res.cookie("teambuildPublic", publicToken)
-                            res.cookie("teambuildPrivate", privateToken, {
-                                httpOnly: true,
+    if(email && password){
+        // Handles the situation when the provided e-mail not exist otherwise the server crashes
+        Promise.resolve(knex.select('email')
+            .from('users')
+            .where({'email': email}))
+            .then(data => {
+                if(data.length > 0) {
+                    try {
+                        knex("user_login")
+                            .where({ email: email })
+                            .select()
+                            .then(rows => {
+                                // Check if emails and passwords match
+                                if (
+                                    email === rows[0].email &&
+                                    Helper.comparePassword(rows[0].hashpass, password)
+                                ) {
+                                    // Generate JWT and send it to the user.
+                                    return knex
+                                        .select("*")
+                                        .from("users")
+                                        .where({ email: email })
+                                        .then(user => {
+                                            const {
+                                                publicToken,
+                                                privateToken,
+                                            } = Helper.generateToken(user[0].user_id)
+                                            res.cookie("teambuildPublic", publicToken)
+                                            res.cookie("teambuildPrivate", privateToken, {
+                                                httpOnly: true,
+                                            })
+                                            res.json({
+                                                user: user[0],
+                                                message: "Login successful",
+                                            })
+                                        })
+                                } else {
+                                    res.status(400).send({ message: "Provided incorrect login details" })
+                                }
                             })
-                            res.json({
-                                user: user[0],
-                                message: "Login successful",
-                            })
-                        })
-                } else {
+                    } catch (e) {
+                        res.status(400).send({ errorMessage: e })
+                    }
+                }else{
                     res.status(400).send({message: "Provided incorrect login details"})
                 }
             })
-    } catch (e) {
-        res.status(400).send({errorMessage: e})
+    }else{
+        res.status(400).send({message: "Please provide your E-mail and password"})
     }
 })
 
