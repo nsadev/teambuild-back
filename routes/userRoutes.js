@@ -105,6 +105,7 @@ router.post("/register", (req, res) => {
                                         first_name: first_name,
                                         last_name: last_name,
                                         joined: new Date(),
+                                        isadmin: false
                                     })
                                     // Insert user into "user_login" table with email and password input
                                     .into("users")
