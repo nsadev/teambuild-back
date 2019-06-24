@@ -149,4 +149,57 @@ router.post("/register", (req, res) => {
 })
 
 
+// New Project API
+
+router.post("/newproject", (req, res) => {
+    const { title, leader, tech, contributors, description, github } = req.body
+
+    // Check if required datas are present
+    if (!title || !leader || !tech || !contributors) {
+        return res.status(400).send({
+            message: "Name, tech stack or number of contributors are missing.",
+        })
+    }
+
+
+    // Insert project into database
+    try {
+
+        projects
+            .select("name")
+            .from("project")
+            .where({ name: title })
+            .then(data => {
+                if (data.length !== 0) {
+                    return res
+                        .status(400)
+                        .send({ message: "Project name already exist" })
+                } else {
+                    projects.transaction(trx => {
+                        return (
+                            trx
+                                .insert({
+                                    name: title,
+                                    description: description,
+                                    project_leader: leader,
+                                    tech_stack: tech,
+                                    contributors_num: contributors,
+                                    github: github,
+                                    created: new Date()
+                                })
+                                .into("project")
+                        )
+                    })
+                    res.json({
+                        message: "New Project created",
+                    })
+                }
+            })
+
+    } catch (e) {
+        res.status(400).send({ errorMessage: "Incorrect details entered." })
+    }
+})
+
+
 module.exports = router

@@ -15,8 +15,7 @@ const contributions = require("knex")({
         user: process.env.PGUSER_CONTR,
         password: process.env.PGPASSWORD_CONTR,
         database: process.env.PGDATABASE_CONTR
-    },
-    useNullAsDefault: true
+    }
 })
 
 const pictures = require("knex")({
