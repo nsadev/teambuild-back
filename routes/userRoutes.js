@@ -1,5 +1,7 @@
 const express = require("express")
-const knex = require("../database/db")
+const users = require("../database/db").users
+const projects = require("../database/db").contributions
+const pictures = require("../database/db").pictures
 
 const { Helper } = require("../utils/index")
 const { checkToken } = require("../middleware/checkToken")
@@ -9,7 +11,7 @@ const router = new express.Router()
 // API from which we load our user profile
 router.get("/", checkToken, (req, res) => {
     const { id } = req.decoded
-    knex.select("*")
+    users.select("*")
         .from("users")
         .where({ user_id: id })
         .then(user => {
@@ -28,13 +30,13 @@ router.post("/login", (req, res) => {
     if(email && password){
         // Check if the provided e-mail exist otherwise crashes on non-existing email
         try{
-            Promise.resolve(knex.select('email')
+            Promise.resolve(users.select('email')
                 .from('users')
                 .where({'email': email}))
                 .then(data => {
                     if(data.length > 0) {
                         try {
-                            knex("user_login")
+                            users("user_login")
                                 .where({ email: email })
                                 .select()
                                 .then(rows => {
@@ -44,7 +46,7 @@ router.post("/login", (req, res) => {
                                         Helper.comparePassword(rows[0].hashpass, password)
                                     ) {
                                         // Generate JWT and send it to the user.
-                                        return knex
+                                        return users
                                             .select("*")
                                             .from("users")
                                             .where({ email: email })
@@ -105,7 +107,7 @@ router.post("/register", (req, res) => {
     // Insert user into "users" table with required empty fields if email not existing
     try {
         Promise.resolve(
-            knex
+            users
                 .select("email")
                 .from("users")
                 .where({ email: email })
@@ -115,7 +117,7 @@ router.post("/register", (req, res) => {
                             .status(400)
                             .send({ message: "Email already exist" })
                     } else {
-                        knex.transaction(trx => {
+                        users.transaction(trx => {
                             return (
                                 trx
                                     .insert({
@@ -145,10 +147,6 @@ router.post("/register", (req, res) => {
         res.status(400).send({ errorMessage: "Incorrect details entered." })
     }
 })
-
-
-
-
 
 
 module.exports = router
