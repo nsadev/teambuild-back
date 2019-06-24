@@ -197,7 +197,39 @@ router.post("/newproject", (req, res) => {
             })
 
     } catch (e) {
-        res.status(400).send({ errorMessage: "Incorrect details entered." })
+        res.status(500).send({ errorMessage: "Server is not available" })
+    }
+})
+
+router.post("/join", (req, res) => {
+
+    /**
+     When User added to a project, front end has to send the user's ID
+     and the selected Project's ID.
+    **/
+
+    const {user, project} = req.body
+
+    // Check if required datas are present
+    if(!user || !project){
+        return res.status(400).send({ message: "User ID or Project ID is missing" })
+    }
+
+    try{
+
+        projects.transaction( trx => {
+            return (
+                trx
+                    .insert({
+                        user_id: user,
+                        project_id: project
+                    })
+                    .into("contribution")
+            )
+        })
+        res.json({ message: "User successfully added to the project" })
+    } catch (e) {
+        res.status(500).send({ errorMessage: "Server is not available" })
     }
 })
 
