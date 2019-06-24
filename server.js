@@ -75,6 +75,15 @@ app.post('/apply', (req, res) => {
         
 })
 
+// Sending all projects from DB
+app.get("/projects", (req, res) => {
+    projects.select("*")
+        .from("project")
+        .then(prj => {
+            res.json(prj)
+        })
+})
+
 app.use("/user", userRoutes)
 
 app.get("/test", (req, res) => {
