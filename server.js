@@ -12,15 +12,15 @@ const userRoutes = require("./routes/userRoutes")
 const app = express()
 const L_PORT = 5000
 
-app.use(cors())
+//app.use(cors())
 
 app.use(logger(":date[iso]"))
 app.use(logger("dev"))
 app.use(logger(":user-agent"))
 
+app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(cookieParser())
 
 // Routes
 
