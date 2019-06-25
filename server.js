@@ -4,6 +4,7 @@ const logger = require("morgan")
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const nodemailer = require("nodemailer")
+const projects = require("./database/db").contributions
 
 const userRoutes = require("./routes/userRoutes")
 
@@ -74,7 +75,14 @@ app.post('/apply', (req, res) => {
         
 })
 
-
+// Sending all projects from DB
+app.get("/projects", (req, res) => {
+    projects.select("*")
+        .from("project")
+        .then(prj => {
+            res.json(prj)
+        })
+})
 
 app.use("/user", userRoutes)
 
