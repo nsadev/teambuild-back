@@ -31,12 +31,11 @@ router.post("/login", (req, res) => {
     if (email && password) {
         // Check if the provided e-mail exist otherwise crashes on non-existing email
         try {
-            Promise.resolve(
                 users
                     .select("email")
                     .from("users")
                     .where({ email: email })
-            ).then(data => {
+            .then(data => {
                 if (data.length > 0) {
                     try {
                         users("user_login")
@@ -133,7 +132,6 @@ router.post("/register", (req, res) => {
 
     // Insert user into "users" table with required empty fields if email not existing
     try {
-        Promise.resolve(
             users
                 .select("email")
                 .from("users")
@@ -144,34 +142,38 @@ router.post("/register", (req, res) => {
                             .status(400)
                             .send({ message: "Email already exist" })
                     } else {
-                        users.transaction(trx => {
-                            return (
-                                trx
-                                    .insert({
-                                        email: email,
-                                        first_name: first_name,
-                                        last_name: last_name,
-                                        joined: new Date(),
-                                        isadmin: false,
-                                    })
-                                    // Insert user into "user_login" table with email and password input
-                                    .into("users")
-                                    .then(() =>
-                                        trx("user_login").insert({
+                        try {
+                            users.transaction(trx => {
+                                return (
+                                    trx
+                                        .insert({
                                             email: email,
-                                            hashpass: hashedPassword,
+                                            first_name: first_name,
+                                            last_name: last_name,
+                                            joined: new Date(),
+                                            isadmin: false,
                                         })
-                                    )
-                            )
-                        })
-                        res.json({
-                            message: "Registration successful",
-                        })
+                                        // Insert user into "user_login" table with email and password input
+                                        .into("users")
+                                        .then(() =>
+                                            trx("user_login").insert({
+                                                email: email,
+                                                hashpass: hashedPassword,
+                                            })
+                                        )
+                                )
+                            })
+                            res.json({
+                                message: "Registration successful",
+                            })
+                        } catch (e) {
+                            res.status(500).send({ message: "Database error" })
+                        }
                     }
                 })
-        )
+
     } catch (e) {
-        res.status(400).send({ errorMessage: "Incorrect details entered." })
+        res.status(400).send({ message: "Incorrect details entered." })
     }
 })
 
@@ -199,26 +201,30 @@ router.post("/newproject", (req, res) => {
                         .status(400)
                         .send({ message: "Project name already exist" })
                 } else {
-                    projects.transaction(trx => {
-                        return trx
-                            .insert({
-                                name: title,
-                                description: description,
-                                project_leader: leader,
-                                tech_stack: tech,
-                                contributors_num: contributors,
-                                github: github,
-                                created: new Date(),
-                            })
-                            .into("project")
-                    })
-                    res.json({
-                        message: "New Project created",
-                    })
+                    try {
+                        projects.transaction(trx => {
+                            return trx
+                                .insert({
+                                    name: title,
+                                    description: description,
+                                    project_leader: leader,
+                                    tech_stack: tech,
+                                    contributors_num: contributors,
+                                    github: github,
+                                    created: new Date(),
+                                })
+                                .into("project")
+                        })
+                        res.json({
+                            message: "New Project created",
+                        })
+                    } catch (e) {
+                        res.status(500).send({ message: "Database error" })
+                    }
                 }
             })
     } catch (e) {
-        res.status(500).send({ errorMessage: "Server is not available" })
+        res.status(500).send({ message: "Server is not available" })
     }
 })
 
@@ -238,7 +244,7 @@ router.post("/join", (req, res) => {
     }
 
 
-    Promise.resolve(
+    try {
         projects
             .select("*")
             .from("contribution")
@@ -263,11 +269,13 @@ router.post("/join", (req, res) => {
                         res.json({ message: "User successfully added to the project" })
 
                     } catch (e) {
-                        res.status(500).send({ errorMessage: "Server is not available" })
+                        res.status(500).send({ message: "Cannot add new project" })
                     }
                 }
             })
-    )
+    } catch (e) {
+        res.status(400).send({ message: "Server is not available" })
+    }
 })
 
 module.exports = router
