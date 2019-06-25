@@ -22,6 +22,8 @@ app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+app.enable('trust proxy')
+
 // Routes
 
 
