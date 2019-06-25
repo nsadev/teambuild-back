@@ -87,8 +87,8 @@ app.get("/projects", (req, res) => {
 
 app.use("/user", userRoutes)
 
-app.get("/test", (req, res) => {
-    res.send("You're using the API correctly. :)")
+app.get("/", (req, res) => {
+    res.send("TeamBuild API")
 })
 
 app.listen(process.env.PORT || L_PORT, () => {
