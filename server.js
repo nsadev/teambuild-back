@@ -12,7 +12,7 @@ const userRoutes = require("./routes/userRoutes")
 const app = express()
 const L_PORT = 5000
 
-//app.use(cors())
+app.use(cors())
 
 app.use(logger(":date[iso]"))
 app.use(logger("dev"))
