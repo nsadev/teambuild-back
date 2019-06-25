@@ -31,12 +31,11 @@ router.post("/login", (req, res) => {
     if (email && password) {
         // Check if the provided e-mail exist otherwise crashes on non-existing email
         try {
-            Promise.resolve(
                 users
                     .select("email")
                     .from("users")
                     .where({ email: email })
-            ).then(data => {
+            .then(data => {
                 if (data.length > 0) {
                     try {
                         users("user_login")
