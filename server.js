@@ -53,7 +53,7 @@ app.post('/apply', (req, res) => {
             // send mail with defined transport object
             let info = await transporter.sendMail({
             from: 'chandlerbaskins@yahoo.com', 
-            to: "teambuild2019adm@gmail.com", 
+            to: "teambuild2019adm@gmail.com",
             subject: "Hello ✔", 
             text: "Hello world?", 
             html: output 
@@ -74,11 +74,15 @@ app.post('/apply', (req, res) => {
 
 // Sending all projects from DB
 app.get("/projects", (req, res) => {
-    projects.select("*")
-        .from("project")
-        .then(prj => {
-            res.json(prj)
-        })
+    try {
+        projects.select("*")
+            .from("project")
+            .then(prj => {
+                res.json(prj)
+            })
+    } catch (e) {
+        res.status(500).send({ message: "Server is not available" })
+    }
 })
 
 app.use("/user", userRoutes)

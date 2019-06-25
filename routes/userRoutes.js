@@ -201,22 +201,26 @@ router.post("/newproject", (req, res) => {
                         .status(400)
                         .send({ message: "Project name already exist" })
                 } else {
-                    projects.transaction(trx => {
-                        return trx
-                            .insert({
-                                name: title,
-                                description: description,
-                                project_leader: leader,
-                                tech_stack: tech,
-                                contributors_num: contributors,
-                                github: github,
-                                created: new Date(),
-                            })
-                            .into("project")
-                    })
-                    res.json({
-                        message: "New Project created",
-                    })
+                    try {
+                        projects.transaction(trx => {
+                            return trx
+                                .insert({
+                                    name: title,
+                                    description: description,
+                                    project_leader: leader,
+                                    tech_stack: tech,
+                                    contributors_num: contributors,
+                                    github: github,
+                                    created: new Date(),
+                                })
+                                .into("project")
+                        })
+                        res.json({
+                            message: "New Project created",
+                        })
+                    } catch (e) {
+                        res.status(500).send({ message: "Database error" })
+                    }
                 }
             })
     } catch (e) {
@@ -240,7 +244,7 @@ router.post("/join", (req, res) => {
     }
 
 
-    Promise.resolve(
+    try {
         projects
             .select("*")
             .from("contribution")
@@ -265,11 +269,13 @@ router.post("/join", (req, res) => {
                         res.json({ message: "User successfully added to the project" })
 
                     } catch (e) {
-                        res.status(500).send({ message: "Server is not available" })
+                        res.status(500).send({ message: "Cannot add new project" })
                     }
                 }
             })
-    )
+    } catch (e) {
+        res.status(400).send({ message: "Server is not available" })
+    }
 })
 
 module.exports = router
