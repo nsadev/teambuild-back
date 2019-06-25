@@ -5,11 +5,14 @@ const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const nodemailer = require("nodemailer")
 const projects = require("./database/db").contributions
+const cors = require("cors")
 
 const userRoutes = require("./routes/userRoutes")
 
 const app = express()
 const L_PORT = 5000
+
+app.use(cors())
 
 app.use(logger(":date[iso]"))
 app.use(logger("dev"))
