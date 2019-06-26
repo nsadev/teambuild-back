@@ -8,6 +8,7 @@ const projects = require("./database/db").contributions
 const cors = require("cors")
 
 const userRoutes = require("./routes/userRoutes")
+const projectRoutes = require("./routes/projectRoutes")
 
 const app = express()
 const L_PORT = 5000
@@ -22,14 +23,13 @@ app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.enable('trust proxy')
+app.enable("trust proxy")
 
 // Routes
 
-
 // nodemailer route for the apply URL
-app.post('/apply', (req, res) => {
-   let output = `
+app.post("/apply", (req, res) => {
+    let output = `
     <p> New application</p>
     <h3>Form details</h3>
     <ul>
@@ -41,56 +41,37 @@ app.post('/apply', (req, res) => {
         <li> join Reason: ${req.body.joinReason} </li>
     </ul>
    `
-        async function main(){
-
-            
-            // create reusable transporter object using the default SMTP transport
-            let transporter = nodemailer.createTransport({
-                host: "smtp.gmail.com",
-                port: 587,
-                secure: false, // true for 465, false for other ports
-                auth: {
+    async function main() {
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
                 user: process.env.TEAMBUILDEMAIL, // generated ethereal user
-                pass: process.env.TEAMBUILDPASSWORD // generated ethereal password
-                }
-            });
+                pass: process.env.TEAMBUILDPASSWORD, // generated ethereal password
+            },
+        })
 
-            // send mail with defined transport object
-            let info = await transporter.sendMail({
-            from: 'chandlerbaskins@yahoo.com', 
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+            from: "chandlerbaskins@yahoo.com",
             to: "teambuild2019adm@gmail.com",
-            subject: "Hello ✔", 
-            text: "Hello world?", 
-            html: output 
-            });
-        
-            console.log("Message sent: %s", info.messageId);
-           
-        
-           
-            console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-           
-        }
-        
-        main().catch(console.error);
-            
-        
-})
+            subject: "Hello ✔",
+            text: "Hello world?",
+            html: output,
+        })
 
-// Sending all projects from DB
-app.get("/projects", (req, res) => {
-    try {
-        projects.select("*")
-            .from("project")
-            .then(prj => {
-                res.json(prj)
-            })
-    } catch (e) {
-        res.status(500).send({ message: "Server is not available" })
+        console.log("Message sent: %s", info.messageId)
+
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
     }
+
+    main().catch(console.error)
 })
 
 app.use("/user", userRoutes)
+app.use("/project", projectRoutes)
 
 app.get("/", (req, res) => {
     res.send("TeamBuild API")

@@ -31,72 +31,72 @@ router.post("/login", (req, res) => {
     if (email && password) {
         // Check if the provided e-mail exist otherwise crashes on non-existing email
         try {
-                users
-                    .select("email")
-                    .from("users")
-                    .where({ email: email })
-            .then(data => {
-                if (data.length > 0) {
-                    try {
-                        users("user_login")
-                            .where({ email: email })
-                            .select()
-                            .then(rows => {
-                                // Check if emails and passwords match
-                                if (
-                                    email === rows[0].email &&
-                                    Helper.comparePassword(
-                                        rows[0].hashpass,
-                                        password
-                                    )
-                                ) {
-                                    // Generate JWT and send it to the user.
-                                    return users
-                                        .select("*")
-                                        .from("users")
-                                        .where({ email: email })
-                                        .then(user => {
-                                            const {
-                                                publicToken,
-                                                privateToken,
-                                            } = Helper.generateToken(
-                                                user[0].user_id
-                                            )
-                                            res.cookie(
-                                                "teambuildPublic",
-                                                publicToken
-                                            )
-                                            res.cookie(
-                                                "teambuildPrivate",
-                                                privateToken,
-                                                {
-                                                    httpOnly: true,
-                                                }
-                                            )
-                                            res.json({
-                                                user: user[0],
-                                                message: "Login successful",
+            users
+                .select("email")
+                .from("users")
+                .where({ email: email })
+                .then(data => {
+                    if (data.length > 0) {
+                        try {
+                            users("user_login")
+                                .where({ email: email })
+                                .select()
+                                .then(rows => {
+                                    // Check if emails and passwords match
+                                    if (
+                                        email === rows[0].email &&
+                                        Helper.comparePassword(
+                                            rows[0].hashpass,
+                                            password
+                                        )
+                                    ) {
+                                        // Generate JWT and send it to the user.
+                                        return users
+                                            .select("*")
+                                            .from("users")
+                                            .where({ email: email })
+                                            .then(user => {
+                                                const {
+                                                    publicToken,
+                                                    privateToken,
+                                                } = Helper.generateToken(
+                                                    user[0].user_id
+                                                )
+                                                res.cookie(
+                                                    "teambuildPublic",
+                                                    publicToken
+                                                )
+                                                res.cookie(
+                                                    "teambuildPrivate",
+                                                    privateToken,
+                                                    {
+                                                        httpOnly: true,
+                                                    }
+                                                )
+                                                res.json({
+                                                    user: user[0],
+                                                    message: "Login successful",
+                                                })
                                             })
+                                    } else {
+                                        res.status(400).send({
+                                            message:
+                                                "Provided incorrect login details",
                                         })
-                                } else {
-                                    res.status(400).send({
-                                        message:
-                                            "Provided incorrect login details",
-                                    })
-                                }
+                                    }
+                                })
+                        } catch (e) {
+                            res.status(400).send({
+                                message:
+                                    "A problem occured when trying to load your account",
                             })
-                    } catch (e) {
+                        }
+                    } else {
                         res.status(400).send({
-                            message:
-                                "A problem occured when trying to load your account",
+                            message: "Provided incorrect login details",
                         })
                     }
-                } else {
-                    res.status(400).send({
-                        message: "Provided incorrect login details",
-                    })
-                }
-            })
+                })
         } catch (e) {
             res.status(400).send({
                 message: "Database is not available, please try again later",
@@ -132,91 +132,39 @@ router.post("/register", (req, res) => {
 
     // Insert user into "users" table with required empty fields if email not existing
     try {
-            users
-                .select("email")
-                .from("users")
-                .where({ email: email })
-                .then(data => {
-                    if (data.length !== 0) {
-                        return res
-                            .status(400)
-                            .send({ message: "Email already exist" })
-                    } else {
-                        try {
-                            users.transaction(trx => {
-                                return (
-                                    trx
-                                        .insert({
-                                            email: email,
-                                            first_name: first_name,
-                                            last_name: last_name,
-                                            joined: new Date(),
-                                            isadmin: false,
-                                        })
-                                        // Insert user into "user_login" table with email and password input
-                                        .into("users")
-                                        .then(() =>
-                                            trx("user_login").insert({
-                                                email: email,
-                                                hashpass: hashedPassword,
-                                            })
-                                        )
-                                )
-                            })
-                            res.json({
-                                message: "Registration successful",
-                            })
-                        } catch (e) {
-                            res.status(500).send({ message: "Database error" })
-                        }
-                    }
-                })
-
-    } catch (e) {
-        res.status(400).send({ message: "Incorrect details entered." })
-    }
-})
-
-// New Project API
-
-router.post("/newproject", (req, res) => {
-    const { title, leader, tech, contributors, description, github } = req.body
-
-    // Check if required datas are present
-    if (!title || !leader || !tech || !contributors) {
-        return res.status(400).send({
-            message: "Name, tech stack or number of contributors are missing.",
-        })
-    }
-
-    // Insert project into database
-    try {
-        projects
-            .select("name")
-            .from("project")
-            .where({ name: title })
+        users
+            .select("email")
+            .from("users")
+            .where({ email: email })
             .then(data => {
                 if (data.length !== 0) {
                     return res
                         .status(400)
-                        .send({ message: "Project name already exist" })
+                        .send({ message: "Email already exist" })
                 } else {
                     try {
-                        projects.transaction(trx => {
-                            return trx
-                                .insert({
-                                    name: title,
-                                    description: description,
-                                    project_leader: leader,
-                                    tech_stack: tech,
-                                    contributors_num: contributors,
-                                    github: github,
-                                    created: new Date(),
-                                })
-                                .into("project")
+                        users.transaction(trx => {
+                            return (
+                                trx
+                                    .insert({
+                                        email: email,
+                                        first_name: first_name,
+                                        last_name: last_name,
+                                        joined: new Date(),
+                                        isadmin: false,
+                                    })
+                                    // Insert user into "user_login" table with email and password input
+                                    .into("users")
+                                    .then(() =>
+                                        trx("user_login").insert({
+                                            email: email,
+                                            hashpass: hashedPassword,
+                                        })
+                                    )
+                            )
                         })
                         res.json({
-                            message: "New Project created",
+                            message: "Registration successful",
                         })
                     } catch (e) {
                         res.status(500).send({ message: "Database error" })
@@ -224,11 +172,11 @@ router.post("/newproject", (req, res) => {
                 }
             })
     } catch (e) {
-        res.status(500).send({ message: "Server is not available" })
+        res.status(400).send({ message: "Incorrect details entered." })
     }
 })
 
-router.post("/join", (req, res) => {
+router.post("/join", checkToken, (req, res) => {
     /**
      When User added to a project, front end has to send the user's ID
      and the selected Project's ID.
@@ -243,20 +191,20 @@ router.post("/join", (req, res) => {
             .send({ message: "User ID or Project ID is missing" })
     }
 
-
     try {
         projects
             .select("*")
             .from("contribution")
             .where({
                 user_id: user,
-                project_id: project
+                project_id: project,
             })
             .then(data => {
                 if (data.length !== 0) {
-                    return res.status(400).send({ message: "User already joined to the Project" })
+                    return res
+                        .status(400)
+                        .send({ message: "User already joined to the Project" })
                 } else {
-
                     try {
                         projects.transaction(trx => {
                             return trx
@@ -266,10 +214,13 @@ router.post("/join", (req, res) => {
                                 })
                                 .into("contribution")
                         })
-                        res.json({ message: "User successfully added to the project" })
-
+                        res.json({
+                            message: "User successfully added to the project",
+                        })
                     } catch (e) {
-                        res.status(500).send({ message: "Cannot add new project" })
+                        res.status(500).send({
+                            message: "Cannot add new project",
+                        })
                     }
                 }
             })
