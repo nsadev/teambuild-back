@@ -54,7 +54,8 @@ router.post("/login", (req, res) => {
                                         return users
                                             .select("*")
                                             .from("users")
-                                            .where({ email: email })
+                                            .innerJoin("user_profile", "users.email", "user_profile.email")
+                                            .where({ "users.email": email })
                                             .then(user => {
                                                 const {
                                                     publicToken,
@@ -111,12 +112,12 @@ router.post("/login", (req, res) => {
 
 // Register API
 router.post("/register", (req, res) => {
-    const { email, password, first_name, last_name } = req.body
+    const { email, password, first_name, last_name, github, role } = req.body
 
     // Check if email and password are present
-    if (!email || !password || !first_name || !last_name) {
+    if (!email || !password || !first_name || !last_name || !github || !role) {
         return res.status(400).send({
-            message: "Email, password, first name or last name is missing.",
+            message: "Email, password, first name, last name, github or role is missing.",
         })
     }
 
@@ -155,6 +156,18 @@ router.post("/register", (req, res) => {
                                     })
                                     // Insert user into "user_login" table with email and password input
                                     .into("users")
+                                    .then(() =>
+                                        trx("user_profile").insert({
+                                            email: email,
+                                            github: github,
+                                            linkedin: null,
+                                            website: null,
+                                            location: null,
+                                            role: role,
+                                            skills: null,
+                                            bio: null
+                                        }).into("user_profile")
+                                    )
                                     .then(() =>
                                         trx("user_login").insert({
                                             email: email,
