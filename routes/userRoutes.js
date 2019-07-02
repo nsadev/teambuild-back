@@ -14,6 +14,7 @@ router.get("/", checkToken, (req, res) => {
     users
         .select("*")
         .from("users")
+        .innerJoin("user_profile", "users.email", "user_profile.email")
         .where({ user_id: id })
         .then(user => {
             res.json(user[0])
