@@ -54,6 +54,7 @@ router.post("/new", checkToken, (req, res) => {
                                     contributors_num: contributors,
                                     github: github,
                                     created: new Date(),
+                                    status: "Active"
                                 })
                                 .into("project")
                         })
