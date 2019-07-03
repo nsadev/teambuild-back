@@ -6,7 +6,12 @@ const pictures = require("../database/db").pictures
 const { Helper } = require("../utils/index")
 const { checkToken } = require("../middleware/checkToken")
 
+const multer = require("multer")
+
 const router = new express.Router()
+
+// Handles binary files from front-end
+const upload = multer().single('file')
 
 // API from which we load our user profile
 router.get("/", checkToken, (req, res) => {
@@ -241,6 +246,24 @@ router.post("/join", checkToken, (req, res) => {
     } catch (e) {
         res.status(400).send({ message: "Server is not available" })
     }
+})
+
+
+router.post("/fileupload", (req, res) => {
+
+    upload(req, res, (err) => {
+        if(err instanceof multer.MulterError || err) {
+            return res.status(500).send({message: "Internal server error"})
+        }
+        console.log(req.file)
+
+        // add binary into DB
+
+        return res.status(200).send({message: "Successful upload"})
+    })
+
+
+
 })
 
 module.exports = router
