@@ -11,7 +11,7 @@ const multer = require("multer")
 const router = new express.Router()
 
 // Handles binary files from front-end
-const upload = multer().single('file')
+const upload = multer()
 
 // API from which we load our user profile
 router.get("/", checkToken, (req, res) => {
@@ -249,18 +249,33 @@ router.post("/join", checkToken, (req, res) => {
 })
 
 
-router.post("/fileupload", (req, res) => {
+router.post("/fileupload", upload.single('file'), (req, res) => {
 
-    upload(req, res, (err) => {
-        if(err instanceof multer.MulterError || err) {
-            return res.status(500).send({message: "Internal server error"})
+    // Insert user email and uploaded image into the DB
+    const email = req.body.email
+    const img = req.file
+
+    // Check if image or email is missing
+    if(!img || !email){
+        res.json({message: "Email or picture missing"})
+    } else {
+        try{
+
+            //add condition if image already exist, then need to replace
+
+            // Adding to database if there is no record yet with the user email
+            pictures.transaction(trx => {
+                return trx.insert({
+                    email: email,
+                    image: img
+                }).into("picture")
+            })
+            res.json({message: "Image successfully uploaded"})
+
+        } catch (err) {
+            res.status(500).send({message: "Server error"})
         }
-        console.log(req.file)
-
-        // add binary into DB
-
-        return res.status(200).send({message: "Successful upload"})
-    })
+    }
 
 
 
