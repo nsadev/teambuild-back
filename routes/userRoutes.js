@@ -6,19 +6,50 @@ const pictures = require("../database/db").pictures
 const { Helper } = require("../utils/index")
 const { checkToken } = require("../middleware/checkToken")
 
+const multer = require("multer")
+
 const router = new express.Router()
+
+// Handles binary files from front-end
+const upload = multer()
 
 // API from which we load our user profile
 router.get("/", checkToken, (req, res) => {
     const { id } = req.decoded
-    users
-        .select("*")
-        .from("users")
-        .innerJoin("user_profile", "users.email", "user_profile.email")
-        .where({ user_id: id })
-        .then(user => {
-            res.json(user[0])
-        })
+
+    try{
+
+        users
+            .select("*")
+            .from("users")
+            .innerJoin("user_profile", "users.email", "user_profile.email")
+            .where({ user_id: id })
+            .then(user => {
+                try{
+                    let userData = user[0]
+
+                    pictures
+                        .select("image")
+                        .from("picture")
+                        .where({email: user[0].email})
+                        .then(img => {
+                            //console.log('userData',userData)
+                            //console.log('img', img[0])
+
+                            userData["image"] = img[0]
+                            console.log('userData',userData)
+                            res.json(userData)
+                        })
+
+
+                } catch (err) {
+                    console.log(err)
+                }
+            })
+
+    } catch (err) {
+        res.status(500).send({message: "User data is not available"})
+    }
 })
 
 // Our logging in and registering API works with signed JWT's. This could be secured more in
@@ -241,6 +272,67 @@ router.post("/join", checkToken, (req, res) => {
     } catch (e) {
         res.status(400).send({ message: "Server is not available" })
     }
+})
+
+// Adding or updating user profile picture
+
+router.post("/picture", checkToken, upload.single('file'), (req, res) => {
+
+    // Insert user email and uploaded image into the DB
+    const email = req.body.email
+    const img = req.file
+
+    // Check if image or email is missing
+    if(!img || !email){
+        res.json({message: "Email or picture missing"})
+    } else {
+        try{
+
+            pictures
+                .select("*")
+                .from("picture")
+                .where({email: email})
+                .then(data => {
+                    if(data.length !== 0) {
+                        // Replace an existing picture
+                        try{
+
+                            pictures.transaction(trx => {
+                                return trx("picture")
+                                    .where({email: email})
+                                    .update({image: img})
+                            })
+                            res.json({message: "Image successfully updated"})
+
+                        } catch(err) {
+                            res.status(500).send({message: "Update error"})
+                        }
+
+                    } else {
+
+                        try{
+
+                            // Adding picture to database if there is no record yet with the user email
+                            pictures.transaction(trx => {
+                                return trx.insert({
+                                    email: email,
+                                    image: img
+                                }).into("picture")
+                            })
+                            res.json({message: "Image successfully uploaded"})
+
+                        } catch(err) {
+                            res.status(500).send({message: "Upload error"})
+                        }
+
+                    }
+                })
+
+        } catch (err) {
+            res.status(500).send({message: "Server error"})
+        }
+    }
+
 })
 
 module.exports = router

@@ -23,6 +23,7 @@ router.get("/", (req, res) => {
 
 router.post("/new", checkToken, (req, res) => {
     const { title, leader, tech, contributors, description, github } = req.body
+    const {image} = req.file
 
     // Check if required datas are present
     if (!title || !leader || !tech || !contributors) {
@@ -54,6 +55,7 @@ router.post("/new", checkToken, (req, res) => {
                                     contributors_num: contributors,
                                     github: github,
                                     created: new Date(),
+                                    thumbnail: image,
                                     status: "Active"
                                 })
                                 .into("project")
@@ -69,6 +71,36 @@ router.post("/new", checkToken, (req, res) => {
     } catch (e) {
         res.status(500).send({ message: "Server is not available" })
     }
+})
+
+
+// Update an existing project
+router.post("/update", checkToken, (req, res) => {
+
+    // Make sure Project Title has been sent to identify the project
+    const {title} = req.body
+    const {image} = req.file
+
+    // Check if image is present
+    if(!image){
+        res.json({message: "Picture missing"})
+    } else {
+        try{
+            projects.transaction(trx => {
+                return trx("project")
+                    .where({name: title})
+                    .update({
+                        thumbnail: image
+                    })
+            })
+            res.json({message: "Project successfully updated"})
+
+        } catch (err) {
+            res.status(500).send({message: "Server error"})
+        }
+    }
+
+
 })
 
 module.exports = router
