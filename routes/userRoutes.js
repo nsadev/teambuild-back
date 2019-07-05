@@ -16,14 +16,48 @@ const upload = multer()
 // API from which we load our user profile
 router.get("/", checkToken, (req, res) => {
     const { id } = req.decoded
-    users
-        .select("*")
-        .from("users")
-        .innerJoin("user_profile", "users.email", "user_profile.email")
-        .where({ user_id: id })
-        .then(user => {
-            res.json(user[0])
-        })
+    // users
+    //     .select("*")
+    //     .from("users")
+    //     .innerJoin("user_profile", "users.email", "user_profile.email")
+    //     .where({ user_id: id })
+    //     .then(user => {
+    //         res.json(user[0])
+    //     })
+
+    try{
+
+        users
+            .select("*")
+            .from("users")
+            .innerJoin("user_profile", "users.email", "user_profile.email")
+            .where({ user_id: id })
+            .then(user => {
+                try{
+                    let userData = user[0]
+
+                    pictures
+                        .select("image")
+                        .from("picture")
+                        .where({email: user[0].email})
+                        .then(img => {
+                            //console.log('userData',userData)
+                            //console.log('img', img[0])
+
+                            userData["image"] = img[0]
+                            console.log('userData',userData)
+                            res.json(userData)
+                        })
+
+
+                } catch (err) {
+                    console.log(err)
+                }
+            })
+
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 // Our logging in and registering API works with signed JWT's. This could be secured more in
@@ -249,7 +283,7 @@ router.post("/join", checkToken, (req, res) => {
 })
 
 
-router.post("/fileupload", upload.single('file'), (req, res) => {
+router.post("/picture", upload.single('file'), (req, res) => {
 
     // Insert user email and uploaded image into the DB
     const email = req.body.email
