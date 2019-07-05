@@ -55,6 +55,7 @@ router.post("/new", checkToken, (req, res) => {
                                     contributors_num: contributors,
                                     github: github,
                                     created: new Date(),
+                                    thumbnail: image,
                                     status: "Active"
                                 })
                                 .into("project")
@@ -72,12 +73,13 @@ router.post("/new", checkToken, (req, res) => {
     }
 })
 
-// Use this route to Update an existing project
+
+// Update an existing project
 router.post("/update", checkToken, (req, res) => {
 
     // Make sure Project Title has been sent to identify the project
     const {title} = req.body
-    const {img} = req.file
+    const {image} = req.file
 
     // Check if image is present
     if(!img){
@@ -88,7 +90,7 @@ router.post("/update", checkToken, (req, res) => {
                 return trx("project")
                     .where({name: title})
                     .update({
-                        thumbnail: img
+                        thumbnail: image
                     })
             })
             res.json({message: "Project successfully updated"})
