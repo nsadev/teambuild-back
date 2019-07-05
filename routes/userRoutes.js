@@ -275,7 +275,7 @@ router.post("/join", checkToken, (req, res) => {
 })
 
 
-router.post("/picture", upload.single('file'), (req, res) => {
+router.post("/picture", checkToken, upload.single('file'), (req, res) => {
 
     // Insert user email and uploaded image into the DB
     const email = req.body.email
@@ -331,10 +331,6 @@ router.post("/picture", upload.single('file'), (req, res) => {
             res.status(500).send({message: "Server error"})
         }
     }
-
-
-
-
 
 })
 
