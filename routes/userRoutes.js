@@ -287,21 +287,52 @@ router.post("/picture", upload.single('file'), (req, res) => {
     } else {
         try{
 
-            //add condition if image already exist, then need to replace
+            pictures
+                .select("*")
+                .from("picture")
+                .where({email: email})
+                .then(data => {
+                    if(data.length !== 0) {
+                        // Replace an existing picture
+                        try{
 
-            // Adding to database if there is no record yet with the user email
-            pictures.transaction(trx => {
-                return trx.insert({
-                    email: email,
-                    image: img
-                }).into("picture")
-            })
-            res.json({message: "Image successfully uploaded"})
+                            pictures.transaction(trx => {
+                                return trx("picture")
+                                    .where({email: email})
+                                    .update({image: img})
+                            })
+                            res.json({message: "Image succesfully updated"})
+
+                        } catch(err) {
+                            console.log(err, "Update error")
+                        }
+
+                    } else {
+
+                        try{
+
+                            // Adding picture to database if there is no record yet with the user email
+                            pictures.transaction(trx => {
+                                return trx.insert({
+                                    email: email,
+                                    image: img
+                                }).into("picture")
+                            })
+                            res.json({message: "Image successfully uploaded"})
+
+                        } catch(err) {
+                            console.log(err)
+                        }
+
+                    }
+                })
 
         } catch (err) {
             res.status(500).send({message: "Server error"})
         }
     }
+
+
 
 
 
