@@ -16,14 +16,6 @@ const upload = multer()
 // API from which we load our user profile
 router.get("/", checkToken, (req, res) => {
     const { id } = req.decoded
-    // users
-    //     .select("*")
-    //     .from("users")
-    //     .innerJoin("user_profile", "users.email", "user_profile.email")
-    //     .where({ user_id: id })
-    //     .then(user => {
-    //         res.json(user[0])
-    //     })
 
     try{
 
@@ -56,7 +48,7 @@ router.get("/", checkToken, (req, res) => {
             })
 
     } catch (err) {
-        console.log(err)
+        res.status(500).send({message: "User data is not available"})
     }
 })
 
