@@ -274,6 +274,7 @@ router.post("/join", checkToken, (req, res) => {
     }
 })
 
+// Adding or updating user profile picture
 
 router.post("/picture", checkToken, upload.single('file'), (req, res) => {
 
@@ -301,10 +302,10 @@ router.post("/picture", checkToken, upload.single('file'), (req, res) => {
                                     .where({email: email})
                                     .update({image: img})
                             })
-                            res.json({message: "Image succesfully updated"})
+                            res.json({message: "Image successfully updated"})
 
                         } catch(err) {
-                            console.log(err, "Update error")
+                            res.status(500).send({message: "Update error"})
                         }
 
                     } else {
@@ -321,7 +322,7 @@ router.post("/picture", checkToken, upload.single('file'), (req, res) => {
                             res.json({message: "Image successfully uploaded"})
 
                         } catch(err) {
-                            console.log(err)
+                            res.status(500).send({message: "Upload error"})
                         }
 
                     }

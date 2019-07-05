@@ -82,7 +82,7 @@ router.post("/update", checkToken, (req, res) => {
     const {image} = req.file
 
     // Check if image is present
-    if(!img){
+    if(!image){
         res.json({message: "Picture missing"})
     } else {
         try{
