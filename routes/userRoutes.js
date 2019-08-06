@@ -52,6 +52,7 @@ router.get("/", checkToken, (req, res) => {
     }
 })
 
+// Route to get every connection that recorded to the logged user
 router.get("/friends", checkToken, (req, res) => {
     const { id } = req.decoded
 
