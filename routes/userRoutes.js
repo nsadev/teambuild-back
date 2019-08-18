@@ -21,9 +21,9 @@ router.get("/", checkToken, (req, res) => {
 
         users
             .select("*")
-            .from("users")
-            .innerJoin("user_profile", "users.email", "user_profile.email")
-            .where({ user_id: id })
+            .from("users AS u")
+            .innerJoin("user_profile AS up", "u.email", "up.email")
+            .where({ "u.user_id": id })
             .then(user => {
                 try{
                     let userData = user[0]
@@ -47,6 +47,25 @@ router.get("/", checkToken, (req, res) => {
                 }
             })
 
+    } catch (err) {
+        res.status(500).send({message: "User data is not available"})
+    }
+})
+
+// Route to get every connection that recorded to the logged user
+router.get("/friends", checkToken, (req, res) => {
+    const { id } = req.decoded
+
+    try{
+        users
+            .select("friend_id", "fr.first_name", "fr.last_name")
+            .from("users AS u")
+            .innerJoin("connections AS c", "u.user_id", "c.user_id")
+            .innerJoin("users AS fr", "fr.user_id", "c.friend_id")
+            .where({"u.user_id": id})
+            .then(user => {
+                res.json(user)
+            })
     } catch (err) {
         res.status(500).send({message: "User data is not available"})
     }
